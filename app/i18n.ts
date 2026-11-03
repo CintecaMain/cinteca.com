@@ -21,6 +21,11 @@ type Activity = {
   description: string;
 };
 
+type PatentFiling = {
+  number: string;
+  title: string;
+};
+
 type LegalArticle = {
   title: string;
   body: string;
@@ -43,6 +48,7 @@ export type SiteCopy = {
     company: string;
     capabilities: string;
     products: string;
+    patents: string;
     contact: string;
     legal: string;
     privacy: string;
@@ -93,6 +99,15 @@ export type SiteCopy = {
     title: string;
     intro: string;
     items: Product[];
+  };
+  patents: {
+    label: string;
+    title: string;
+    intro: string;
+    facts: [string, string][];
+    numberLabel: string;
+    items: PatentFiling[];
+    note: string;
   };
   contact: {
     label: string;
@@ -157,6 +172,11 @@ const productUrls = {
   nordixBios: "https://nordixbios.com",
   ncsEngine: "https://ncsengine.com",
 };
+
+// Spanish national patent applications filed with the OEPM by
+// AD Caldas Innotec, S.A. on 2 October 2026. Numbers are official
+// identifiers and never translated.
+const patentNumbers = ["P202631350", "P202631351", "P202631352", "P202631353"] as const;
 
 const address = "Calle Blanco, 10 · Torrecera · 11595 Jerez de la Frontera · Cádiz · España";
 const registry = "Cádiz · Tomo 2350 · Folio 9 · Sección 8 · Hoja CA-56553 · Inscripción 4";
@@ -717,7 +737,7 @@ export const translations: Record<Locale, SiteCopy> = {
     languageLabel: "Language",
     navigationLabel: "Main navigation",
     menuLabel: "Menu",
-    nav: { company: "Company", capabilities: "Capabilities", products: "Products", contact: "Contact", legal: "Legal notice", privacy: "Privacy" },
+    nav: { company: "Company", capabilities: "Capabilities", products: "Products", patents: "Patents", contact: "Contact", legal: "Legal notice", privacy: "Privacy" },
     registryLabel: "Register",
     hero: {
       eyebrow: "Official corporate website",
@@ -773,6 +793,15 @@ export const translations: Record<Locale, SiteCopy> = {
         { name: "NordixBIOS", code: "AGENTIC AI FACTORY", url: productUrls.nordixBios, tag: "Latest project", description: "Agentic AI Factory: connects to your software — ERP, CRM, POS or vertical SaaS — and provides the full infrastructure to create and operate AI workers across every layer, under your brand." },
         { name: "LegalNeuron", code: "LEGAL AI", url: productUrls.legalNeuron, description: "Artificial intelligence and management software for legal professionals and law firms. It supports the analysis, review and automation of legal documents and processes." },        { name: "NCS Engine", code: "AI INFRASTRUCTURE", url: productUrls.ncsEngine, description: "Secure infrastructure for deploying and operating artificial intelligence in cloud, local and hybrid environments." },
       ],
+    },
+    patents: {
+      label: "Industrial property",
+      title: "In-house research, patent pending.",
+      intro: "AD Caldas Innotec, S.A. has filed four Spanish national patent applications with the Spanish Patent and Trademark Office (OEPM). They cover in-house methods for neural-network architecture and training: conditional computation over a reservoir of addressable units, allocation of the compute budget across layers, reservoir expansion that preserves the computed function, and rescue of under-used units.",
+      facts: [["Office", "Spanish Patent and Trademark Office (OEPM)"], ["Applicant", "AD Caldas Innotec, S.A."], ["Type", "Spanish national patent application"], ["Filing date", "2 October 2026"], ["Status", "Pending"]],
+      numberLabel: "Application no.",
+      items: [{ number: patentNumbers[0], title: "Method and system for conditional computation with a reservoir of addressable neurons and exact-cardinality selection" }, { number: patentNumbers[1], title: "Method and system for allocating a per-element compute budget across the layers of a neural network" }, { number: patentNumbers[2], title: "Method for expanding a reservoir of addressable units in a neural network while preserving the computed function" }, { number: patentNumbers[3], title: "Method for rescuing under-used units by splitting, in a reservoir of addressable units of a neural network" }],
+      note: "Titles translated from the original Spanish.",
     },
     contact: {
       label: "Contact",
@@ -836,7 +865,7 @@ export const translations: Record<Locale, SiteCopy> = {
     languageLabel: "Idioma",
     navigationLabel: "Navegación principal",
     menuLabel: "Menú",
-    nav: { company: "Empresa", capabilities: "Capacidades", products: "Productos", contact: "Contacto", legal: "Aviso legal", privacy: "Privacidad" },
+    nav: { company: "Empresa", capabilities: "Capacidades", products: "Productos", patents: "Patentes", contact: "Contacto", legal: "Aviso legal", privacy: "Privacidad" },
     registryLabel: "Registro",
     hero: { eyebrow: "Sitio corporativo oficial", titlePre: "Tecnología aplicada,", titleAccent: "construida para operar.", intro: "Cinteca es la marca tecnológica de AD Caldas Innotec, S.A. La compañía desarrolla y gestiona productos de software, inteligencia artificial e infraestructura digital para profesionales y organizaciones.", ctaProducts: "Ver productos", ctaContact: "Contacto protegido", entity: "Entidad mercantil española", companyName: "Razón social", taxId: "NIF", registry: "Registro", founder: "Fundador", contact: "Contacto", contactValue: "Canal protegido", completeIdentity: "Ver identificación completa" },
     status: ["Empresa activa", "Actividad tecnológica desde 2014", "Alcance global · Proyectos internacionales", "Productos con identidad propia"],
@@ -849,6 +878,7 @@ export const translations: Record<Locale, SiteCopy> = {
     },
     capabilities: { label: "Capacidades", title: "Know-how completo, sin convertirlo en un currículum.", intro: "El mapa distingue la experiencia directamente consolidada de las disciplinas adyacentes que pueden ser dirigidas, integradas o administradas con especialistas según el alcance del proyecto.", direct: "Conocimiento directo", adjacent: "Dirección e integración", domains: "dominios", topics: "capacidades", topicCount: "temas", note: "“Dirección e integración” no pretende atribuir dominio individual de cada especialidad: identifica ámbitos que Cinteca puede evaluar, contratar, coordinar y gobernar con responsabilidad técnica.", items: esCapabilities },
     products: { label: "Productos", title: "Productos con identidad propia.", intro: "Cada producto responde a un contexto específico y dispone de su propio dominio, comunicación y propuesta de valor.", items: [ { name: "NordixBIOS", code: "AGENTIC AI FACTORY", url: productUrls.nordixBios, tag: "Proyecto más reciente", description: "Agentic AI Factory: se conecta a tu software — ERP, CRM, TPV o SaaS vertical — y pone la infraestructura completa para crear y operar trabajadores IA en todas las capas, con tu marca." },{ name: "LegalNeuron", code: "LEGAL AI", url: productUrls.legalNeuron, description: "Software de inteligencia artificial y gestión para profesionales del derecho y despachos. Facilita el análisis, la revisión y la automatización de documentos y procesos jurídicos." },{ name: "NCS Engine", code: "AI INFRASTRUCTURE", url: productUrls.ncsEngine, description: "Infraestructura segura para desplegar y operar inteligencia artificial en entornos cloud, locales e híbridos." }] },
+    patents: { label: "Propiedad industrial", title: "Investigación propia, patente solicitada.", intro: "AD Caldas Innotec, S.A. ha presentado cuatro solicitudes de patente nacional ante la Oficina Española de Patentes y Marcas (OEPM). Cubren métodos propios de arquitectura y entrenamiento de redes neuronales: computación condicional sobre un reservorio de unidades direccionables, reparto del presupuesto de cómputo entre capas, ampliación del reservorio sin alterar la función calculada y rescate de unidades infrautilizadas.", facts: [["Oficina", "Oficina Española de Patentes y Marcas (OEPM)"], ["Solicitante", "AD Caldas Innotec, S.A."], ["Modalidad", "Solicitud de patente nacional"], ["Fecha de presentación", "2 de octubre de 2026"], ["Estado", "En tramitación"]], numberLabel: "N.º de solicitud", items: [{ number: patentNumbers[0], title: "Método y sistema de computación condicional con reservorio de neuronas direccionables y selección de cardinalidad exacta" }, { number: patentNumbers[1], title: "Método y sistema de reparto de un presupuesto de cómputo por elemento entre capas de una red neuronal" }, { number: patentNumbers[2], title: "Método de ampliación de un reservorio de unidades direccionables de una red neuronal que preserva la función calculada" }, { number: patentNumbers[3], title: "Método de rescate por división de unidades infrautilizadas en un reservorio de unidades direccionables de una red neuronal" }], note: "Títulos tal como figuran en las solicitudes presentadas." },
     contact: { label: "Contacto", title: "Contacto protegido.", intro: "Envíe su consulta mediante este canal protegido. Su dirección de correo y nuestro buzón de destino no se publican en el sitio.", formLabel: "Registro de comunicación", protectedLabel: "Protegido por Cloudflare Turnstile", name: "Nombre", email: "Su correo electrónico", company: "Empresa", optional: "Opcional", subject: "Asunto", message: "Mensaje", privacyAcknowledgement: "He leído la información de privacidad de este canal de contacto.", privacyLink: "Ver política de privacidad", verification: "Verificación humana", send: "Enviar de forma segura", sending: "Enviando…", success: "Su mensaje se ha enviado de forma segura. Responderemos por correo electrónico.", error: "No se ha podido enviar el mensaje. Revise los campos e inténtelo de nuevo.", turnstileError: "La verificación humana ha caducado o ha fallado. Inténtelo de nuevo.", configurationError: "El canal de contacto protegido todavía no está configurado." },
     legal: {
       label: "Aviso legal", title: "Identificación del titular.", intro: "Información facilitada de forma permanente, directa y gratuita de conformidad con el artículo 10 de la Ley 34/2002, de Servicios de la Sociedad de la Información y de Comercio Electrónico.",
@@ -866,7 +896,7 @@ export const translations: Record<Locale, SiteCopy> = {
     languageLabel: "Idioma",
     navigationLabel: "Navegação principal",
     menuLabel: "Menu",
-    nav: { company: "Empresa", capabilities: "Competências", products: "Produtos", contact: "Contato", legal: "Aviso legal", privacy: "Privacidade" },
+    nav: { company: "Empresa", capabilities: "Competências", products: "Produtos", patents: "Patentes", contact: "Contato", legal: "Aviso legal", privacy: "Privacidade" },
     registryLabel: "Registro",
     hero: { eyebrow: "Site corporativo oficial", titlePre: "Tecnologia aplicada,", titleAccent: "construída para operar.", intro: "Cinteca é a marca tecnológica da AD Caldas Innotec, S.A. A empresa desenvolve e gerencia produtos de software, inteligência artificial e infraestrutura digital para profissionais e organizações.", ctaProducts: "Ver produtos", ctaContact: "Contato protegido", entity: "Sociedade mercantil espanhola", companyName: "Razão social", taxId: "NIF", registry: "Registro", founder: "Fundador", contact: "Contato", contactValue: "Canal protegido", completeIdentity: "Ver identificação completa" },
     status: ["Empresa ativa", "Atividade tecnológica desde 2014", "Atuação global · Projetos internacionais", "Produtos com identidade própria"],
@@ -879,6 +909,7 @@ export const translations: Record<Locale, SiteCopy> = {
     },
     capabilities: { label: "Competências", title: "Know-how completo, sem transformá-lo em um currículo.", intro: "O mapa separa a experiência diretamente consolidada das disciplinas relacionadas que podem ser dirigidas, integradas ou administradas com especialistas conforme o escopo de cada projeto.", direct: "Conhecimento direto", adjacent: "Direção e integração", domains: "domínios", topics: "competências", topicCount: "temas", note: "“Direção e integração” não pretende atribuir domínio individual de cada especialidade. Identifica áreas que a Cinteca pode avaliar, contratar, coordenar e governar com responsabilidade técnica.", items: ptCapabilities },
     products: { label: "Produtos", title: "Produtos com identidade própria.", intro: "Cada produto responde a um contexto específico e possui domínio, comunicação e proposta de valor próprios.", items: [ { name: "NordixBIOS", code: "AGENTIC AI FACTORY", url: productUrls.nordixBios, tag: "Projeto mais recente", description: "Agentic AI Factory: conecta-se ao seu software — ERP, CRM, POS ou SaaS vertical — e fornece a infraestrutura completa para criar e operar trabalhadores de IA em todas as camadas, com a sua marca." },{ name: "LegalNeuron", code: "LEGAL AI", url: productUrls.legalNeuron, description: "Software de inteligência artificial e gestão para profissionais do direito e escritórios. Facilita a análise, revisão e automação de documentos e processos jurídicos." },{ name: "NCS Engine", code: "AI INFRASTRUCTURE", url: productUrls.ncsEngine, description: "Infraestrutura segura para implantar e operar inteligência artificial em ambientes cloud, locais e híbridos." }] },
+    patents: { label: "Propriedade industrial", title: "Pesquisa própria, patente requerida.", intro: "A AD Caldas Innotec, S.A. apresentou quatro pedidos de patente nacional ao Escritório Espanhol de Patentes e Marcas (OEPM). Eles abrangem métodos próprios de arquitetura e treinamento de redes neurais: computação condicional sobre um reservatório de unidades endereçáveis, distribuição do orçamento de computação entre camadas, ampliação do reservatório sem alterar a função calculada e resgate de unidades subutilizadas.", facts: [["Escritório", "Escritório Espanhol de Patentes e Marcas (OEPM)"], ["Requerente", "AD Caldas Innotec, S.A."], ["Modalidade", "Pedido de patente nacional espanhola"], ["Data de apresentação", "02/10/2026"], ["Situação", "Em tramitação"]], numberLabel: "Nº do pedido", items: [{ number: patentNumbers[0], title: "Método e sistema de computação condicional com reservatório de neurônios endereçáveis e seleção de cardinalidade exata" }, { number: patentNumbers[1], title: "Método e sistema de distribuição de um orçamento de computação por elemento entre camadas de uma rede neural" }, { number: patentNumbers[2], title: "Método de ampliação de um reservatório de unidades endereçáveis de uma rede neural que preserva a função calculada" }, { number: patentNumbers[3], title: "Método de resgate por divisão de unidades subutilizadas em um reservatório de unidades endereçáveis de uma rede neural" }], note: "Títulos traduzidos do original em espanhol." },
     contact: { label: "Contato", title: "Contato protegido.", intro: "Envie sua consulta por este canal protegido. Seu e-mail e nossa caixa de destino nunca são publicados no site.", formLabel: "Registro de comunicação", protectedLabel: "Protegido por Cloudflare Turnstile", name: "Nome", email: "Seu e-mail", company: "Empresa", optional: "Opcional", subject: "Assunto", message: "Mensagem", privacyAcknowledgement: "Li as informações de privacidade deste canal de contato.", privacyLink: "Ver política de privacidade", verification: "Verificação humana", send: "Enviar com segurança", sending: "Enviando…", success: "Sua mensagem foi enviada com segurança. Responderemos por e-mail.", error: "Não foi possível enviar a mensagem. Revise os campos e tente novamente.", turnstileError: "A verificação humana expirou ou falhou. Tente novamente.", configurationError: "O canal de contato protegido ainda não está configurado." },
     legal: {
       label: "Aviso legal", title: "Identificação do titular.", intro: "Informação disponibilizada de forma permanente, direta e gratuita em conformidade com o artigo 10 da Lei espanhola 34/2002, de Serviços da Sociedade da Informação e Comércio Eletrônico.",
@@ -896,7 +927,7 @@ export const translations: Record<Locale, SiteCopy> = {
     languageLabel: "Språk",
     navigationLabel: "Hovednavigasjon",
     menuLabel: "Meny",
-    nav: { company: "Selskapet", capabilities: "Kompetanse", products: "Produkter", contact: "Kontakt", legal: "Juridisk informasjon", privacy: "Personvern" },
+    nav: { company: "Selskapet", capabilities: "Kompetanse", products: "Produkter", patents: "Patenter", contact: "Kontakt", legal: "Juridisk informasjon", privacy: "Personvern" },
     registryLabel: "Register",
     hero: { eyebrow: "Offisielt firmanettsted", titlePre: "Anvendt teknologi,", titleAccent: "bygget for drift.", intro: "Cinteca er teknologimerket til AD Caldas Innotec, S.A. Selskapet utvikler og forvalter programvareprodukter, kunstig intelligens og digital infrastruktur for fagpersoner og virksomheter.", ctaProducts: "Se produktene", ctaContact: "Beskyttet kontakt", entity: "Spansk aksjeselskap", companyName: "Juridisk navn", taxId: "Skatte-ID", registry: "Register", founder: "Grunnlegger", contact: "Kontakt", contactValue: "Beskyttet kanal", completeIdentity: "Se fullstendige selskapsopplysninger" },
     status: ["Aktivt selskap", "Teknologivirksomhet siden 2014", "Globalt virkeområde · Internasjonale prosjekter", "Produkter med egen identitet"],
@@ -909,6 +940,7 @@ export const translations: Record<Locale, SiteCopy> = {
     },
     capabilities: { label: "Kompetanse", title: "Komplett know-how, uten å gjøre den om til en CV.", intro: "Oversikten skiller mellom direkte etablert erfaring og tilgrensende fagområder som kan ledes, integreres eller administreres sammen med spesialister ut fra prosjektets omfang.", direct: "Direkte kunnskap", adjacent: "Ledelse og integrasjon", domains: "domener", topics: "kompetanseområder", topicCount: "temaer", note: "«Ledelse og integrasjon» innebærer ikke påstand om individuell ekspertise i alle fagområder. Det viser områder Cinteca kan vurdere, kontrahere, koordinere og styre med teknisk ansvar.", items: nbCapabilities },
     products: { label: "Produkter", title: "Produkter med egen identitet.", intro: "Hvert produkt dekker en bestemt kontekst og har eget domene, kommunikasjon og verdiforslag.", items: [ { name: "NordixBIOS", code: "AGENTIC AI FACTORY", url: productUrls.nordixBios, tag: "Nyeste prosjekt", description: "Agentic AI Factory: kobles til programvaren din — ERP, CRM, kasse eller vertikal SaaS — og leverer full infrastruktur for å skape og drifte KI-arbeidere i alle lag, under din merkevare." },{ name: "LegalNeuron", code: "LEGAL AI", url: productUrls.legalNeuron, description: "Programvare for kunstig intelligens og administrasjon for jurister og advokatfirmaer. Den støtter analyse, gjennomgang og automatisering av juridiske dokumenter og prosesser." },{ name: "NCS Engine", code: "AI INFRASTRUCTURE", url: productUrls.ncsEngine, description: "Sikker infrastruktur for utrulling og drift av kunstig intelligens i skybaserte, lokale og hybride miljøer." }] },
+    patents: { label: "Industrielt rettsvern", title: "Egen forskning, patent søkt.", intro: "AD Caldas Innotec, S.A. har levert fire nasjonale patentsøknader til det spanske patent- og varemerkekontoret (OEPM). De omfatter egne metoder for arkitektur og trening av nevrale nettverk: betinget beregning over et reservoar av adresserbare enheter, fordeling av beregningsbudsjettet mellom lag, utvidelse av reservoaret uten å endre den beregnede funksjonen og redning av underutnyttede enheter.", facts: [["Kontor", "Det spanske patent- og varemerkekontoret (OEPM)"], ["Søker", "AD Caldas Innotec, S.A."], ["Type", "Nasjonal spansk patentsøknad"], ["Innleveringsdato", "2. oktober 2026"], ["Status", "Under behandling"]], numberLabel: "Søknadsnr.", items: [{ number: patentNumbers[0], title: "Metode og system for betinget beregning med et reservoar av adresserbare nevroner og utvalg med eksakt kardinalitet" }, { number: patentNumbers[1], title: "Metode og system for fordeling av et beregningsbudsjett per element mellom lagene i et nevralt nettverk" }, { number: patentNumbers[2], title: "Metode for utvidelse av et reservoar av adresserbare enheter i et nevralt nettverk som bevarer den beregnede funksjonen" }, { number: patentNumbers[3], title: "Metode for redning av underutnyttede enheter ved deling i et reservoar av adresserbare enheter i et nevralt nettverk" }], note: "Titlene er oversatt fra originalen på spansk." },
     contact: { label: "Kontakt", title: "Beskyttet kontakt.", intro: "Send henvendelsen gjennom denne beskyttede kanalen. Din e-postadresse og vår mottakeradresse publiseres aldri på nettstedet.", formLabel: "Kommunikasjonsregister", protectedLabel: "Beskyttet av Cloudflare Turnstile", name: "Navn", email: "Din e-post", company: "Selskap", optional: "Valgfritt", subject: "Emne", message: "Melding", privacyAcknowledgement: "Jeg har lest personverninformasjonen for denne kontaktkanalen.", privacyLink: "Se personvernerklæringen", verification: "Menneskelig verifisering", send: "Send sikkert", sending: "Sender…", success: "Meldingen er sendt sikkert. Vi svarer på e-post.", error: "Meldingen kunne ikke sendes. Kontroller feltene og prøv igjen.", turnstileError: "Den menneskelige verifiseringen utløp eller mislyktes. Prøv igjen.", configurationError: "Den beskyttede kontaktkanalen er ennå ikke konfigurert." },
     legal: {
       label: "Juridisk informasjon", title: "Opplysninger om nettstedets eier.", intro: "Informasjonen gis permanent, direkte og kostnadsfritt i samsvar med artikkel 10 i den spanske loven 34/2002 om informasjonssamfunnstjenester og elektronisk handel.",

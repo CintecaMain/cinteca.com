@@ -36,6 +36,11 @@ test("renders the official company identity and product portfolio", async () => 
   assert.match(html, /LegalNeuron/);
   assert.match(html, /NordixBIOS/);
   assert.match(html, /NCS Engine/);
+  assert.match(html, /id="patentes"/);
+  assert.match(html, /In-house research, patent pending\./);
+  assert.match(html, /P202631350/);
+  assert.match(html, /P202631353/);
+  assert.match(html, /Spanish Patent and Trademark Office \(OEPM\)/);
   assert.doesNotMatch(html, /adriano@cinteca\.es/);
   assert.doesNotMatch(html, /\+34 665 478 150/);
   assert.doesNotMatch(html, /href="(?:mailto|tel):/i);

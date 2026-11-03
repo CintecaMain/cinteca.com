@@ -225,6 +225,7 @@ export default function Home() {
           ".activity-grid article",
           ".capability-card",
           ".product-row",
+          ".patent-ledger li",
           ".privacy-grid article",
         ].join(", "),
       ),
@@ -522,6 +523,7 @@ export default function Home() {
             <a href="#empresa" onClick={closeMobileNav}>{copy.nav.company}</a>
             <a href="#capacidades" onClick={closeMobileNav}>{copy.nav.capabilities}</a>
             <a href="#productos" onClick={closeMobileNav}>{copy.nav.products}</a>
+            <a href="#patentes" onClick={closeMobileNav}>{copy.nav.patents}</a>
             <a href="#contacto" onClick={closeMobileNav}>{copy.nav.contact}</a>
             <a href="#aviso-legal" onClick={closeMobileNav}>{copy.nav.legal}</a>
             <a href="#privacidad" onClick={closeMobileNav}>{copy.nav.privacy}</a>
@@ -751,11 +753,50 @@ export default function Home() {
         </div>
       </section>
 
+      <section className="section patents" id="patentes">
+        <div className="sheet">
+          <p className="sheet-kicker">
+            {copy.registryLabel} 04 — {copy.patents.label}
+          </p>
+          <div className="patents-content">
+            <div className="section-heading">
+              <h2>{copy.patents.title}</h2>
+              <p>{copy.patents.intro}</p>
+            </div>
+
+            <div className="patent-register">
+              <dl className="patent-facts">
+                {copy.patents.facts.map(([label, value]) => (
+                  <div key={label}>
+                    <dt>{label}</dt>
+                    <dd>{value}</dd>
+                  </div>
+                ))}
+              </dl>
+
+              <ol className="patent-ledger">
+                {copy.patents.items.map((patent) => (
+                  <li key={patent.number}>
+                    <p className="patent-number">
+                      <small>{copy.patents.numberLabel}</small>
+                      {patent.number}
+                    </p>
+                    <h3>{patent.title}</h3>
+                  </li>
+                ))}
+              </ol>
+            </div>
+
+            <p className="patent-note">{copy.patents.note}</p>
+          </div>
+        </div>
+      </section>
+
       <section className="section contact" id="contacto">
         <div className="contact-content">
           <div className="contact-copy">
             <p className="sheet-kicker kicker-on-green">
-              {copy.registryLabel} 04 — {copy.contact.label}
+              {copy.registryLabel} 05 — {copy.contact.label}
             </p>
             <h2>{copy.contact.title}</h2>
             <p>{copy.contact.intro}</p>
@@ -880,7 +921,7 @@ export default function Home() {
       <section className="section legal appendix" id="aviso-legal">
         <div className="sheet sheet-appendix">
           <p className="sheet-kicker">
-            {copy.registryLabel} 05 — {copy.legal.label}
+            {copy.registryLabel} 06 — {copy.legal.label}
           </p>
           <div className="legal-content">
           <div className="legal-intro">
@@ -931,7 +972,7 @@ export default function Home() {
       <section className="section privacy appendix" id="privacidad">
         <div className="sheet sheet-appendix">
           <p className="sheet-kicker">
-            {copy.registryLabel} 06 — {copy.privacy.label}
+            {copy.registryLabel} 07 — {copy.privacy.label}
           </p>
           <div className="privacy-content">
           <div className="legal-intro">

@@ -46,3 +46,20 @@ test("every locale describes the protected contact channel", () => {
     assert.match(copy.privacy.intro, /Turnstile/i, `${locale} Turnstile disclosure`);
   }
 });
+
+test("every locale lists the four OEPM patent applications of the company", () => {
+  for (const locale of ["pt", "en", "es", "nb"]) {
+    const patents = translations[locale].patents;
+    assert.deepEqual(
+      patents.items.map((patent) => patent.number),
+      ["P202631350", "P202631351", "P202631352", "P202631353"],
+      `${locale} application numbers`,
+    );
+    assert.ok(patents.items.every((patent) => patent.title.length > 0), `${locale} titles`);
+    assert.ok(
+      patents.facts.some(([, value]) => value === "AD Caldas Innotec, S.A."),
+      `${locale} applicant`,
+    );
+    assert.ok(patents.facts.some(([, value]) => /OEPM/.test(value)), `${locale} office`);
+  }
+});
