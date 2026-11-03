@@ -35,6 +35,7 @@ test("renders the official company identity and product portfolio", async () => 
   assert.match(html, /CA-56553/);
   assert.match(html, /LegalNeuron/);
   assert.match(html, /NordixBIOS/);
+  assert.match(html, /NordixAIgency/);
   assert.match(html, /NCS Engine/);
   assert.match(html, /id="patentes"/);
   assert.match(html, /In-house research, patent pending\./);
