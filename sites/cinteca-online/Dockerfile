@@ -11,11 +11,15 @@ RUN rm -rf /usr/share/nginx/html/* /etc/nginx/conf.d/default.conf
 COPY deploy/nginx.conf /etc/nginx/nginx.conf
 COPY deploy/security-headers.conf /etc/nginx/security-headers.conf
 COPY public/ /usr/share/nginx/html/
-# Owned by root and read-only for nginx's user, whatever modes the build context had; the configuration is checked
-# at build time. `nginx -t` runs as root here and leaves a root-owned /tmp/nginx.pid (and the temp folders) in the
-# layer: removed, or nginx (uid 101) cannot write its pid file and exits when /tmp is not a fresh tmpfs, as on the
-# platform.
-RUN chmod -R u=rwX,go=rX /usr/share/nginx/html /etc/nginx/nginx.conf /etc/nginx/security-headers.conf \
+# The configuration and the pages belong to root and are read-only for nginx's user (folders 0755, files 0644),
+# whatever modes the build context had. The base image gives /etc/nginx (with mime.types, which nginx.conf includes)
+# and /var/cache/nginx to uid 101 with group write: taken back, so uid 101 can neither change nor add a file there.
+# nginx writes only in /tmp (its pid file and temporary folders, see nginx.conf). The configuration is checked at
+# build time: `nginx -t` runs as root here and leaves a root-owned /tmp/nginx.pid (and the temp folders) in the layer,
+# removed, or nginx (uid 101) cannot write its pid file and exits when /tmp is not a fresh tmpfs, as on the platform.
+RUN chown -R -h root:root /etc/nginx /usr/share/nginx/html /var/cache/nginx \
+ && find /etc/nginx /usr/share/nginx/html /var/cache/nginx -type d -exec chmod 0755 {} + \
+ && find /etc/nginx /usr/share/nginx/html /var/cache/nginx -type f -exec chmod 0644 {} + \
  && nginx -t \
  && rm -rf /tmp/nginx.pid /tmp/client_temp /tmp/proxy_temp /tmp/fastcgi_temp /tmp/uwsgi_temp /tmp/scgi_temp
 
