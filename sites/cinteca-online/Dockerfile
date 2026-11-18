@@ -12,9 +12,12 @@ COPY deploy/nginx.conf /etc/nginx/nginx.conf
 COPY deploy/security-headers.conf /etc/nginx/security-headers.conf
 COPY public/ /usr/share/nginx/html/
 # Owned by root and read-only for nginx's user, whatever modes the build context had; the configuration is checked
-# at build time.
+# at build time. `nginx -t` runs as root here and leaves a root-owned /tmp/nginx.pid (and the temp folders) in the
+# layer: removed, or nginx (uid 101) cannot write its pid file and exits when /tmp is not a fresh tmpfs, as on the
+# platform.
 RUN chmod -R u=rwX,go=rX /usr/share/nginx/html /etc/nginx/nginx.conf /etc/nginx/security-headers.conf \
- && nginx -t
+ && nginx -t \
+ && rm -rf /tmp/nginx.pid /tmp/client_temp /tmp/proxy_temp /tmp/fastcgi_temp /tmp/uwsgi_temp /tmp/scgi_temp
 
 USER 101
 EXPOSE 8080
