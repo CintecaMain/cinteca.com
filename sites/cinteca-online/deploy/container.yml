@@ -1,0 +1,7 @@
+# The container configuration file the self-hosted platform's CI/CD reads (MainServer, Containers › Running › Deploy,
+# config path sites/cinteca-online/deploy/container.yml) for the identity page container (www.cinteca.online, port
+# 8080). It builds ../Dockerfile into an nginx image; the image's HEALTHCHECK decides when an instance is routed. No
+# command and no migrations (static files only).
+build:
+  context: sites/cinteca-online
+  dockerfile: Dockerfile
