@@ -28,25 +28,49 @@ This folder is self-contained. The Next.js site at the repository root (cinteca.
     `infra/runbooks/traefik.md`).
   This short note stays until the full privacy policy, which comes with the move of the sign-in service (owner
   decision of 2026-11-18). A change of the log format or of the platform's retention changes this note.
+  Its last item links to the full policy in the same language.
 
 A change of any of these facts is the owner's decision. Update all three languages and the "Last updated" date.
+
+## Full privacy policy (draft for the owner's approval)
+
+`/privacy/`, `/es/privacidad/` and `/pt/privacidade/` (the Portuguese is Brazilian, as the identity page): the full
+policy of the sign-in service (auth.cinteca.online, login.cinteca.online), of this site and of messages to
+admin@cinteca.cloud, structured after GDPR art. 13/14, the LOPDGDD and the LGPD (W1 runbook item CPOL, approval PP12
+with L1-L6). Every fact comes from: this page; the authapi code and `docs/platform.md` (data and fields, code and
+token lifetimes, hashing, no cookie and no browser storage on the login portal, the BIOS internal endpoints, no
+automatic deletion of the database records); the platform facts of the legal notes (`juridico-revisao.md`,
+`decisoes-dono-pt.md`: BelHost eu-1 Amsterdam, ITLDC eu-2 Milan, Cherry Servers us-1 Chicago, each with a full copy;
+encrypted backups at Backblaze B2 in Virginia for 90 days + ~30; encrypted network between servers; mail over TLS when
+the receiving server accepts it); and the W1 runbook (the stopped copy at AWS Frankfurt kept for rollback).
+
+Every fact or legal choice the notes do not settle (controller, registered office, DPO/encarregado, legal bases,
+transfer safeguards, DPAs, several retention periods, SMS, minimum age, change notices, the publication date) is a
+marked placeholder `[[TO CONFIRM: Cn — …]]`, the same numbers in the three languages. The image's build refuses any
+page that still holds `[[TO CONFIRM` (`Dockerfile`), so a deployment of this branch fails until the owner approves the
+text and the placeholders are replaced; the current pages stay live meanwhile. At publication: replace every
+placeholder (and its `<mark>`) in the three languages, set the date, and update the identity pages' "Last updated".
 
 ## Files
 
 | Path | What |
 |---|---|
-| `public/` | The pages (`index.html`, `es/`, `pt/`, `404.html`), `site.css`, `favicon.svg`, `robots.txt` |
+| `public/` | The pages (`index.html`, `es/`, `pt/`, `404.html`), the privacy policy (`privacy/`, `es/privacidad/`, `pt/privacidade/`), `site.css`, `favicon.svg`, `robots.txt` |
 | `deploy/nginx.conf` | nginx: port 8080, plain HTTP → HTTPS (301, not `/healthz`), `/healthz` (never cached), `/en/` → `/`, 404 page, Cache-Control |
 | `deploy/security-headers.conf` | HSTS (one year, this host only, HTTPS answers only), a CSP with no script or outside origin, and the other headers |
 | `deploy/container.yml` | The platform CI/CD configuration (build context `sites/cinteca-online`) |
-| `Dockerfile` | `nginxinc/nginx-unprivileged` pinned by digest, uid 101, port 8080, configuration and pages root's and read-only, a `HEALTHCHECK` on `/healthz` |
+| `Dockerfile` | `nginxinc/nginx-unprivileged` pinned by digest, uid 101, port 8080, configuration and pages root's and read-only, a `HEALTHCHECK` on `/healthz`, and the build refuses draft text (`[[TO CONFIRM`) unless `ALLOW_DRAFT=1` |
 | `local-test.sh` | The local test below |
 
 ## Test it locally
 
 ```bash
 bash sites/cinteca-online/local-test.sh    # Docker, bash and curl; prints PASS/FAIL lines and ends with ALL PASS
+ALLOW_DRAFT=1 bash sites/cinteca-online/local-test.sh    # while a page still holds draft text
 ```
+
+While a page holds `[[TO CONFIRM`, the plain run stops at the build, as the platform would; with `ALLOW_DRAFT=1` the
+image is built with the draft and the test also checks that a build without the argument still refuses it.
 
 The test builds the image and checks it the way the platform runs it. The platform starts every instance as a new
 container of the image, as the image's own user (uid 101), on the image's own file system and `/tmp` (no tmpfs over
@@ -62,11 +86,13 @@ is not enough: the fresh `/tmp` hides files the build leaves there, and that is 
 3. **run 2, read-only root file system:** a new container with `--read-only --tmpfs /tmp --cap-drop ALL`; the image
    must work there too;
 4. in both runs, sending `X-Forwarded-Proto` as Traefik does (and none where the health check sends none): 200 on
-   `/`, `/es/`, `/pt/`, `/healthz`, `/site.css`, `/favicon.svg`, `/robots.txt`; `/es`, `/pt`, `/en`, `/en/`
-   redirected; plain HTTP answered `301 https://www.cinteca.online/…` (path and query kept) except `/healthz` (200);
+   `/`, `/es/`, `/pt/`, the three policy pages, `/healthz`, `/site.css`, `/favicon.svg`, `/robots.txt`; `/es`, `/pt`,
+   `/en`, `/en/` and the policy folders without their slash redirected; plain HTTP answered `301 https://www.cinteca.online/…` (path and query kept) except `/healthz` (200);
    404s and 405; the eight security headers and `Server: nginx` without a version, with HSTS on HTTPS answers only;
    Cache-Control (`no-cache` on pages and every redirect, `no-store` on `/healthz`, one hour on the stylesheet); the
-   facts above, the privacy note's log fields and retention in all three languages; no script or outside resource;
+   facts above, the privacy note's log fields and retention and its link to the policy in all three languages; the
+   policy's controller, contact, servers, backup provider, laws, authorities, retention and cookie statement, its
+   three languages linked to each other; no script or outside resource;
    as uid 101, no way to change or add a configuration file or a page (create, `mkdir`, symlink, append, `chmod`,
    replace by `mv`); no nginx error line.
 
