@@ -80,6 +80,10 @@ SEC=("Content-Security-Policy: default-src 'none'; style-src 'self'; img-src 'se
   "Permissions-Policy: camera=(), geolocation=(), microphone=(), payment=(), usb=()"
   "Cross-Origin-Opener-Policy: same-origin" "Cross-Origin-Resource-Policy: same-origin" "Server: nginx")
 HSTS="Strict-Transport-Security: max-age=31536000"
+# The proxy log's retention, word for word the same in the identity note and in the policy (placeholder C9 on both).
+PROXY_EN="about one year after their log file is closed"
+PROXY_ES="aproximadamente un año después de cerrarse su archivo"
+PROXY_PT="cerca de um ano depois do fechamento do arquivo"
 headers() {  # label, yes|no (HSTS expected), curl arguments
   local label=$1 hsts=$2 H n=0 want; shift 2
   H=$(hdrs "$@")
@@ -147,12 +151,12 @@ check() {
     && ok "plain HTTP 301 of /site.css Cache-Control: no-cache" || ko "plain HTTP 301 of /site.css lacks Cache-Control: no-cache"
   for p in / /es/ /pt/; do
     body=$(curl -s -H "X-Forwarded-Proto: https" "$B$p")
-    # The privacy note names everything the access log records and how long logs are kept, and links to the full
-    # privacy policy in the same language.
+    # The privacy note names everything the access log records and how long logs are kept (the proxy's retention in
+    # the policy's own words, so the two cannot drift apart), and links to the full privacy policy in the same language.
     case $p in
-      /) priv=("referring page" "browser identification" "30 days" "one year" 'href="/privacy/"') ;;
-      /es/) priv=("página de procedencia" "identificación del navegador" "30 días" "un año" 'href="/es/privacidad/"') ;;
-      /pt/) priv=("página de origem" "identificação do navegador" "30 dias" "um ano" 'href="/pt/privacidade/"') ;;
+      /) priv=("referring page" "browser identification" "30 days" "$PROXY_EN" 'href="/privacy/"') ;;
+      /es/) priv=("página de procedencia" "identificación del navegador" "30 días" "$PROXY_ES" 'href="/es/privacidad/"') ;;
+      /pt/) priv=("página de origem" "identificação do navegador" "30 dias" "$PROXY_PT" 'href="/pt/privacidade/"') ;;
     esac
     for want in "AD Caldas Innotec, S.A." "NIF A66316399" "admin@cinteca.cloud" "OAuth" 'href="/es/"' 'href="/pt/"' 'href="/"' \
       "${priv[@]}" "1 GB" "100 MB"; do
@@ -167,9 +171,9 @@ check() {
   for p in /privacy/ /es/privacidad/ /pt/privacidade/; do
     body=$(curl -s -H "X-Forwarded-Proto: https" "$B$p")
     case $p in
-      /privacy/) lang=("Privacy policy" "Amsterdam" "30 days" "90 days" "sets no cookies" 'href="/"') ;;
-      /es/privacidad/) lang=("Política de privacidad" "Ámsterdam" "30 días" "90 días" "no instala cookies" 'href="/es/"') ;;
-      /pt/privacidade/) lang=("Política de privacidade" "Amsterdã" "30 dias" "90 dias" "não grava cookies" 'href="/pt/"') ;;
+      /privacy/) lang=("Privacy policy" "Amsterdam" "30 days" "90 days" "$PROXY_EN" "sets no cookies" 'href="/"') ;;
+      /es/privacidad/) lang=("Política de privacidad" "Ámsterdam" "30 días" "90 días" "$PROXY_ES" "no instala cookies" 'href="/es/"') ;;
+      /pt/privacidade/) lang=("Política de privacidade" "Amsterdã" "30 dias" "90 dias" "$PROXY_PT" "não grava cookies" 'href="/pt/"') ;;
     esac
     for want in "AD Caldas Innotec, S.A." "NIF A66316399" "admin@cinteca.cloud" "BelHost" "ITLDC" "Cherry Servers" "Chicago" \
       "Backblaze" "PBKDF2-SHA512" "LGPD" "LOPDGDD" "AEPD" "ANPD" "1 GB" "100 MB" \

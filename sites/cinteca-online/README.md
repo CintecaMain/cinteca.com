@@ -28,7 +28,10 @@ This folder is self-contained. The Next.js site at the repository root (cinteca.
     `infra/runbooks/traefik.md`).
   This short note stays until the full privacy policy, which comes with the move of the sign-in service (owner
   decision of 2026-11-18). A change of the log format or of the platform's retention changes this note.
-  Its last item links to the full policy in the same language.
+  Its last item links to the full policy in the same language. Its proxy sentence uses the policy's words («up to about
+  one year after their log file is closed», the recommendation of the owner's notes, since the file closes only every
+  100 MiB) and, with the "Last updated" date, carries the policy's placeholders C9 and C1: the build refuses them too
+  until they are replaced together with the policy's, and `local-test.sh` checks that note and policy say the same.
 
 A change of any of these facts is the owner's decision. Update all three languages and the "Last updated" date.
 
@@ -38,8 +41,11 @@ A change of any of these facts is the owner's decision. Update all three languag
 policy of the sign-in service (auth.cinteca.online, login.cinteca.online), of this site and of messages to
 admin@cinteca.cloud, structured after GDPR art. 13/14, the LOPDGDD and the LGPD (W1 runbook item CPOL, approval PP12
 with L1-L6). Every fact comes from: this page; the authapi code and `docs/platform.md` (data and fields, code and
-token lifetimes, hashing, no cookie and no browser storage on the login portal, the BIOS internal endpoints, no
-automatic deletion of the database records); the platform facts of the legal notes (`juridico-revisao.md`,
+token lifetimes per client and the device code's, hashing, no cookie and no browser storage on the login portal, no
+consent screen for the first-party clients, the BIOS internal endpoints and the BIOS reclaim of an unverified account,
+client `nordix-tpv`'s lookups by account code and by id (used by NordixSys-API `terminal/customers` and others), the
+message-preference register keyed by business, with people who have no account, no automatic deletion of the
+database records); the platform facts of the legal notes (`juridico-revisao.md`,
 `decisoes-dono-pt.md`: BelHost eu-1 Amsterdam, ITLDC eu-2 Milan, Cherry Servers us-1 Chicago, each with a full copy;
 encrypted backups at Backblaze B2 in Virginia for 90 days + ~30; encrypted network between servers; mail over TLS when
 the receiving server accepts it); and the W1 runbook (the stopped copy at AWS Frankfurt kept for rollback).
@@ -49,7 +55,8 @@ transfer safeguards, DPAs, several retention periods, SMS, minimum age, change n
 marked placeholder `[[TO CONFIRM: Cn — …]]`, the same numbers in the three languages. The image's build refuses any
 page that still holds `[[TO CONFIRM` (`Dockerfile`), so a deployment of this branch fails until the owner approves the
 text and the placeholders are replaced; the current pages stay live meanwhile. At publication: replace every
-placeholder (and its `<mark>`) in the three languages, set the date, and update the identity pages' "Last updated".
+placeholder (and its `<mark>`) in the three languages of the policy and of the identity pages (C9's proxy sentence and
+C1's date, as `<time datetime="YYYY-MM-DD">`), then run `local-test.sh` without `ALLOW_DRAFT`.
 
 ## Files
 
@@ -107,6 +114,11 @@ then http://localhost:8080/.
 Containers › Running › Deploy, in the OAuth environment, for the container that serves `www.cinteca.online`:
 repository `CintecaMain/cinteca.com`, branch `migration/mainserver`, configuration file
 `sites/cinteca-online/deploy/container.yml`, HTTP port 8080. No variables, mounts, command or migrations.
+
+The policy draft sits on this branch since c57be1d; the live image is 93d57fc's. Until the owner approves it (W1
+PP12) and the placeholders are replaced, a deployment from this branch stops at the build, by design. If the identity
+page must be redeployed before that, or the owner does not approve the policy, first revert the policy commits on this
+branch (from c57be1d on), so the branch builds the 93d57fc pages again.
 
 Since 2026-11-18 the registry delegates cinteca.online to the platform's name servers, and the ingress serves a
 Let's Encrypt certificate for `www.cinteca.online` (the platform's DNS-01 validation, no HTTP challenge). So nginx

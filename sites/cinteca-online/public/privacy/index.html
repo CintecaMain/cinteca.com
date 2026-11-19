@@ -30,7 +30,7 @@
 <ul>
 <li>The sign-in and account service of Cinteca's applications: the service at auth.cinteca.online and its sign-in pages at login.cinteca.online, which let you create an account, sign in and recover access to those applications. Today they are the applications of Nordix Systems, NexFide and Nordix BIOS. <mark>[[TO CONFIRM: C4 — the applications and who is responsible for each]]</mark></li>
 <li>This site, www.cinteca.online.</li>
-<li>The messages you send to admin@cinteca.cloud about these services.</li>
+<li>The messages you send to admin@cinteca.cloud about these services, and the replies sent to the no-reply address our messages come from, which are received and kept in that address's mailbox.</li>
 </ul>
 <p>Each application you sign in to handles the data it receives from the service under its own privacy policy.</p>
 
@@ -39,31 +39,31 @@
 <ul>
 <li>your e-mail address and, if you give them, your name, given name, family name and the address (link) of a picture;</li>
 <li>your password, which we never store as such: we keep only a salted hash of it;</li>
-<li>if you turn on two-step verification, the e-mail address or phone number that receives the codes;</li>
-<li>your preferred language.</li>
+<li>if you turn on two-step verification, the e-mail address or phone number that receives the codes.</li>
 </ul>
 <p>What the service records while you use it:</p>
 <ul>
-<li>an account identifier and an 8-character account code; whether the account is verified and active; its role and permissions in the organisation it belongs to; the dates of its creation, of its changes and of your last sign-in;</li>
-<li>the applications you allowed to use your account and the permissions you granted them;</li>
-<li>records of the tokens issued to those applications (identifier, permissions, dates, revocation), of your sign-in sessions and of the one-time codes sent to you (of a code, only its hash);</li>
+<li>an account identifier and an 8-character account code; whether the account is verified and active; its role and permissions in the organisation it belongs to; the dates of its creation, of its changes and of your last sign-in; a language setting (Spanish by default);</li>
+<li>the permissions you granted to the applications that ask you for them;</li>
+<li>records of the tokens issued to the applications you sign in to (identifier, permissions, dates, revocation), of your sign-in sessions and of the one-time codes sent to you (of a code, only its hash);</li>
 <li>security and audit records: the IP address, the browser identification and, for sessions, information about the device; the date and time; what was done (sign-up, sign-in, code request, password change, token issued or revoked) and with what result; for attempts, the e-mail address or identifier entered;</li>
 <li>a record of each request to the service: the operation, the address, the result, the duration, the IP address, the browser identification and, when known, the account and the application.</li>
 </ul>
-<p>Your message choices: the applications ask the service whether they may send you a message, and the service keeps a register of your choices for each application, channel (e-mail, SMS, WhatsApp, push notification or voice) and purpose (for example security, transactional or marketing). It holds your e-mail address or phone number only as a keyed hash, with a masked hint, the status of your choice (for example confirmed or opted out) and the history of its changes, with a hash of the IP address they came from.</p>
-<p>From others: an application can create an account for you. Nordix BIOS creates the accounts of the members of a company that connects it to Nordix Systems, with the e-mail address and the name it holds; such an account is verified from the start, has no password and receives no verification message.</p>
+<p>Message preferences: the applications of Nordix Systems and Nordix BIOS ask the service whether they may send a message to an e-mail address or a phone number, and the service keeps a register of the choices for each business (company) that uses Nordix Systems or Nordix BIOS, channel (e-mail, SMS, WhatsApp, push notification or voice) and purpose (for example security, transactional or marketing). The register also covers people who have no account: the customers and contacts of those businesses, whose e-mail address or phone number the businesses give, and anyone who uses the unsubscribe or confirmation link in a message. It holds the e-mail address or phone number only as a keyed hash, with a masked hint, the status of the choice (for example confirmed or opted out), where it came from (the person through a link, the business, an application or a returned message) and the history of its changes, with a hash of the IP address they came from; the requests made through those links are also recorded, with their IP address, like any request to the service (see above). <mark>[[TO CONFIRM: C23 — our role in this register: controller, or processor of each business for its customers and contacts (L1)]]</mark></p>
+<p>From others: an application can create an account for you. Nordix BIOS creates the accounts of the members of a company that connects it to Nordix Systems, with the e-mail address and the name it holds; such an account is verified from the start, has no password and receives no verification message. If that e-mail address already had an account that was never verified, the service hands the account over to the owner of the address, for whom Nordix BIOS vouches: it marks it verified, annuls its password, closes its sessions, cancels its pending codes, deletes its two-step verification factors and records this in the audit records.</p>
 <p>To create an account yourself you need to give an e-mail address and a password; without them we cannot create it. Your name and the other profile details are optional.</p>
 
 <h2 id="purposes">Why we use it and on what legal basis</h2>
 <ul>
 <li><strong>Your account and sign-in.</strong> To create and run your account, sign you in, verify your e-mail address, reset your password, run two-step verification and send you the messages these need. Legal basis: <mark>[[TO CONFIRM: C5 — proposed: performance of the contract (GDPR art. 6(1)(b); LGPD art. 7, V)]]</mark></li>
-<li><strong>Signing in to the applications.</strong> When you sign in to an application, the service gives it an identifier of your account and, as far as the permissions you granted allow, your e-mail address and whether it is verified, your name, given name, family name and picture address. Legal basis: the same as for your account.</li>
+<li><strong>Signing in to the applications.</strong> When you sign in to an application, the service gives it an identifier of your account and, as far as the permissions the application is registered for allow (and, where it asks you, the ones you granted), your e-mail address and whether it is verified, your name, given name, family name and picture address. Legal basis: the same as for your account.</li>
+<li><strong>Finding your account at a shop.</strong> When you give your 8-character account code at a shop that uses Nordix Systems, the service lets Nordix Systems find your account and read your name and e-mail address, without you signing in, to link your loyalty account to that business. Nordix Systems can also read the name and e-mail address of the accounts it works with. Legal basis: <mark>[[TO CONFIRM: C22 — legal basis for these lookups without a sign-in, and who is responsible for what Nordix Systems receives (C4)]]</mark></li>
 <li><strong>Security.</strong> To protect the service and your account: limiting attempts, temporarily blocking an address or an account after too many failures, and detecting and investigating abuse, with the security, audit and request records and the logs described below. Legal basis: <mark>[[TO CONFIRM: C6 — proposed: legitimate interest in the security of the service and of the accounts (GDPR art. 6(1)(f) and recital 49; LGPD art. 7, IX)]]</mark></li>
-<li><strong>Your message choices.</strong> To record and respect your choices about the messages the applications send you. Legal basis: <mark>[[TO CONFIRM: C7 — proposed: legal obligation to demonstrate consent and to respect objections (GDPR arts. 6(1)(c), 7(1) and 21)]]</mark></li>
-<li><strong>Your messages to us.</strong> To answer what you send to admin@cinteca.cloud: questions, abuse reports and requests about your rights. Legal basis: <mark>[[TO CONFIRM: C8 — proposed: legitimate interest (GDPR art. 6(1)(f)); for requests about your rights, legal obligation (art. 6(1)(c))]]</mark></li>
+<li><strong>Message preferences.</strong> To record and respect the choices of each person about the messages that the applications of Nordix Systems and Nordix BIOS, and the businesses that use them, send. Legal basis: <mark>[[TO CONFIRM: C7 — depends on C23; if we are the controller, proposed: legal obligation to demonstrate consent and to respect objections (GDPR arts. 6(1)(c), 7(1) and 21); if we are each business's processor, the business decides it, under its own policy]]</mark></li>
+<li><strong>Your messages to us.</strong> To answer what you send to admin@cinteca.cloud: questions, abuse reports and requests about your rights; the replies that reach the no-reply address are kept in its mailbox (to reach us, write to admin@cinteca.cloud). Legal basis: <mark>[[TO CONFIRM: C8 — proposed: legitimate interest (GDPR art. 6(1)(f)); for requests about your rights, legal obligation (art. 6(1)(c))]]</mark></li>
 <li><strong>This site, the sign-in pages and the backups.</strong> To run and protect them, with the logs described below, and to be able to restore the service from a backup. Legal basis: the same as for security.</li>
 </ul>
-<p>The service does not use your data for advertising and does not build profiles of you. The only automatic measure it takes about you is the temporary block after too many failed attempts; write to us if you think a block was wrong.</p>
+<p>The service does not use your data for advertising and does not build profiles of you. It takes no decision based solely on automated processing that produces legal effects concerning you or similarly significantly affects you (GDPR art. 22). It does take automatic security measures: the temporary block after too many failed attempts, closing a sign-in session when one of its refresh tokens is used twice, and the hand-over of an unverified account described above; write to us if you think such a measure was wrong.</p>
 
 <h2 id="cookies">Cookies and browser storage</h2>
 <ul>
@@ -84,10 +84,11 @@
 <h2 id="recipients">Who receives the data</h2>
 <ul>
 <li><strong>The applications you sign in to</strong>, as described above. Nordix BIOS can also look up the e-mail address and name of the accounts it works with (for example, to notify the person who asked for something, or a company's administrator) and check an account's role in a company.</li>
+<li><strong>Nordix Systems</strong> can find your account from the 8-character code you give at a shop that uses it, and read your name and e-mail address, to link your loyalty account to that business; it can also read the name and e-mail address of the accounts it works with (for example, the staff and the customers of the businesses that use it). It does so without you signing in at that moment.</li>
 <li><strong>Our hosting providers</strong>, as processors, which run the servers of the platform where the service, this site and the mailbox admin@cinteca.cloud run: BelHost (server eu-1, Amsterdam, Netherlands), ITLDC (server eu-2, Milan, Italy) and Cherry Servers (server us-1, Chicago, United States). The three servers work at the same time, each with a full copy of the data, and any of them can answer you. <mark>[[TO CONFIRM: C10 — legal entities of the providers and their data processing agreements (L3)]]</mark></li>
 <li><strong>Backblaze</strong>, as processor, which stores the encrypted backups (B2, Virginia, United States).</li>
-<li><strong>Amazon Web Services</strong>, in Frankfurt (Germany), where the service ran before it moved to this platform: a stopped copy of its database stays there only to be able to go back, and will then be deleted. <mark>[[TO CONFIRM: C11 — when the copy at AWS is deleted (L6)]]</mark></li>
-<li><strong>Text messages:</strong> <mark>[[TO CONFIRM: C12 — whether two-step codes are sent by SMS, and through which provider]]</mark></li>
+<li><strong>Amazon Web Services</strong>, in Frankfurt (Germany), where the service ran before it moved to this platform: a stopped copy of its database and its snapshots stay there only to be able to go back, and will then be deleted. <mark>[[TO CONFIRM: C11 — when the copy and the snapshots at AWS are deleted, and whether a 1-year archive of them or the service's logs at AWS (CloudWatch) stay (L6)]]</mark></li>
+<li><strong>Text messages:</strong> <mark>[[TO CONFIRM: C12 — whether two-step codes are sent by SMS, and through which provider; if so, also whether the service tells Nordix BIOS the verified phone number (AUTHAPI_BIOS_WEBHOOK_ENABLED), which would make Nordix BIOS a recipient of it]]</mark></li>
 <li><strong>Your mailbox provider</strong>, which receives the messages we send you. Our own mail server sends them, encrypted when the receiving server accepts it.</li>
 <li><strong>Public authorities and courts</strong>, only when the law requires it.</li>
 </ul>
@@ -104,13 +105,13 @@
 <h2 id="retention">How long we keep data</h2>
 <ul>
 <li>Account data: while the account exists. <mark>[[TO CONFIRM: C16 — how an account is closed, and how long its data stay after that]]</mark></li>
-<li>Codes and tokens are short-lived: a verification or password-reset code is valid for 10 minutes, a two-step code for 5 minutes, a sign-in step for 10 minutes; an access token for 15 minutes; a refresh token for the period set for each application (7 days unless the application sets another).</li>
+<li>Codes and tokens are short-lived: a verification or password-reset code is valid for 10 minutes, a two-step code for 5 minutes, a sign-in step for 10 minutes, a code to sign in on another device for 30 minutes; an access token for the period set for each application (15 minutes unless the application sets another); a refresh token for the period set for each application (7 days unless the application sets another).</li>
 <li>The records of codes, tokens, sessions, security events, audits and requests: <mark>[[TO CONFIRM: C17 — retention period; today the service deletes none of them automatically]]</mark></li>
-<li>Your message choices: as long as they are needed to respect them; the history of changes is kept as proof even after an erasure, without your e-mail address or phone number in clear. <mark>[[TO CONFIRM: C18 — retention period of that history]]</mark></li>
+<li>The message-preference register: as long as the choices are needed to respect them; the history of changes is kept as proof even after an erasure, without the e-mail address or phone number in clear. <mark>[[TO CONFIRM: C18 — retention period of that history]]</mark></li>
 <li>The web server logs and the service's technical log: 30 days, or less if they exceed 1 GB; each server also keeps the latest ones (up to 100 MB) until the service is next updated.</li>
 <li>The proxy's records: up to about one year after their log file is closed, or less if they exceed 1 GB. <mark>[[TO CONFIRM: C9 — wording of the proxy-log retention]]</mark></li>
 <li>Backups: 90 days, and about 30 more days until the last copies are removed; data deleted from the service are gone from the backups within that time.</li>
-<li>Messages to admin@cinteca.cloud: <mark>[[TO CONFIRM: C19 — retention period]]</mark></li>
+<li>Messages to admin@cinteca.cloud and replies to the no-reply address: <mark>[[TO CONFIRM: C19 — retention period of both mailboxes, and who can read the no-reply one (decision R2)]]</mark></li>
 </ul>
 <p>When the law requires us to keep data longer, we keep them blocked and use them only for that purpose.</p>
 
