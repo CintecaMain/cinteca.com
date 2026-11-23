@@ -12,7 +12,7 @@ Identidade visual **«Registo»**: uma casa institucional em verde profundo, mar
 
 - **Next.js 16** (App Router) com exportação estática — sem servidor, sem banco de dados, sem cookies, sem analytics;
 - **4 idiomas** (pt · en · es · nb) com deteção pelo navegador e seleção manual via `?lang=`;
-- **Contato protegido**: Cloudflare Turnstile + honeypot + Lambda de envio — sem e-mail publicado;
+- **Contato protegido**: Cloudflare Turnstile + honeypot + função de envio (`functions/contact-form`, partilhada com adrianocaldas.com; era a Lambda `contact-form-endpoint` da AWS e passa a função da plataforma MainServer) — sem e-mail publicado;
 - **Conformidade**: aviso legal (art. 10 da Lei espanhola 34/2002 — LSSI) e política de privacidade integrados;
 - **Acessibilidade**: contraste WCAG AA documentado no CSS, foco visível, animações sob `prefers-reduced-motion`;
 - **JSON-LD** (Organization/Brand/WebSite), sitemap e robots;
@@ -44,3 +44,5 @@ npm run build:s3   # gera out/ (exportação estática)
 ```
 
 O conteúdo de `out/` é publicado como site estático (S3 + CloudFront) no domínio `cinteca.es`.
+
+O endereço da função de contato está em `app/page.tsx` (`defaultContactEndpoint`); `NEXT_PUBLIC_CONTACT_ENDPOINT` substitui-o numa build. A função, as suas variáveis e testes: [`functions/contact-form/README.md`](functions/contact-form/README.md).

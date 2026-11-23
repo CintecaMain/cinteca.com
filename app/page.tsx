@@ -15,8 +15,13 @@ import {
   type Locale,
 } from "./i18n";
 
-const contactEndpoint =
+// The contact function (functions/contact-form), shared with adrianocaldas.com. The default is the AWS Lambda's URL
+// until the cut-over sets the platform function's; NEXT_PUBLIC_CONTACT_ENDPOINT overrides it in a build,
+// e.g. https://<function id>.<General's primary domain>/ for a check before the default changes.
+const defaultContactEndpoint =
   "https://u33x6xbn7dq2l5jn66hvv7ovc40bgiye.lambda-url.eu-central-1.on.aws/";
+const contactEndpoint =
+  process.env.NEXT_PUBLIC_CONTACT_ENDPOINT || defaultContactEndpoint;
 const configuredTurnstileSiteKey =
   process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ?? "";
 const legalContactEmail = process.env.NEXT_PUBLIC_LEGAL_CONTACT_EMAIL ?? "";
