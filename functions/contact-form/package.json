@@ -1,0 +1,17 @@
+{
+  "name": "cinteca-contact-lambda",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Protected SMTP contact endpoint for cinteca.es and adrianocaldas.com",
+  "main": "index.mjs",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "test": "node --test"
+  },
+  "dependencies": {
+    "nodemailer": "^9.0.3"
+  }
+}
