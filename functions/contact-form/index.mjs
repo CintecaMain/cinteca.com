@@ -1,3 +1,29 @@
+/**
+ * The protected contact forms of cinteca.es and adrianocaldas.com, as a function of the self-hosted platform
+ * (MainServer, environment General). It replaces the AWS Lambda contact-form-endpoint (cinteca-prod, eu-central-1),
+ * whose code it keeps: the same request contract, origin and site checks, honeypot, mandatory Turnstile (token,
+ * action and hostname), body limit, answers and status codes. The sites call its public URL
+ * https://<function id>.<General's primary domain>/ (external access on), as they called the Lambda's function URL:
+ * every server serves that name with its own runner, so any one server down leaves the form working.
+ *
+ * Changed for the platform (owner decision D14, 2026-11-22: "Função da plataforma"):
+ *   - the message goes through the platform's mail server as General's no-reply user (SMTP_PASSWORD, injected by the
+ *     platform), not through Amazon SES; From defaults to "<site> contact form <SMTP_USER>" when no sender of the site
+ *     is configured (a brand sender such as web-cinteca@cinteca.es needs a sender grant on the platform first);
+ *   - SMTP_SECURE defaults to true on port 465 (the platform's submission port); a temporary SMTP failure is tried
+ *     again on a new connection while the call has time left (every call is a new container: no transport to reuse);
+ *   - General's variables are shared by all its functions and containers, so on the platform (MAINSERVER_FUNCTION_ID
+ *     is set) only the CINTECA_CONTACT_ names count; elsewhere the Lambda's names still work:
+ *       CINTECA_CONTACT_TO_EMAIL                       <- CONTACT_TO_EMAIL
+ *       CINTECA_CONTACT_FROM_EMAIL_CINTECA, _AC        <- CONTACT_FROM_EMAIL_CINTECA, CONTACT_FROM_EMAIL_AC
+ *       CINTECA_CONTACT_ALLOWED_ORIGINS                <- ALLOWED_ORIGINS
+ *       CINTECA_CONTACT_TURNSTILE_SECRET_KEY (secret)  <- TURNSTILE_SECRET_KEY
+ *       CINTECA_CONTACT_TURNSTILE_EXPECTED_ACTION      <- TURNSTILE_EXPECTED_ACTION
+ *       CINTECA_CONTACT_TURNSTILE_EXPECTED_HOSTNAMES   <- TURNSTILE_EXPECTED_HOSTNAMES
+ *     SMTP_HOST, SMTP_PORT, SMTP_SECURE, SMTP_REQUIRE_TLS, SMTP_USER and SMTP_PASS (or the platform's SMTP_PASSWORD)
+ *     keep their names: they are the environment's mail settings, shared on purpose.
+ *   - nodemailer 10.5.0 (9.0.3 on AWS: npm audit reports advisories up to 10.1.3).
+ */
 import crypto from "node:crypto";
 import nodemailer from "nodemailer";
 
@@ -18,7 +44,41 @@ const SITE_CONFIG = {
   },
 };
 
-let transporter;
+// The Lambda's variable names and their names on the platform.
+const PLATFORM_NAMES = {
+  CONTACT_TO_EMAIL: "CINTECA_CONTACT_TO_EMAIL",
+  CONTACT_FROM_EMAIL_CINTECA: "CINTECA_CONTACT_FROM_EMAIL_CINTECA",
+  CONTACT_FROM_EMAIL_AC: "CINTECA_CONTACT_FROM_EMAIL_AC",
+  ALLOWED_ORIGINS: "CINTECA_CONTACT_ALLOWED_ORIGINS",
+  TURNSTILE_SECRET_KEY: "CINTECA_CONTACT_TURNSTILE_SECRET_KEY",
+  TURNSTILE_EXPECTED_ACTION: "CINTECA_CONTACT_TURNSTILE_EXPECTED_ACTION",
+  TURNSTILE_EXPECTED_HOSTNAMES: "CINTECA_CONTACT_TURNSTILE_EXPECTED_HOSTNAMES",
+};
+
+// Pauses before the second and the third SMTP try; a new try starts only with this much of the call's time left.
+const SMTP_RETRY_PAUSES_MS = [1_000, 3_000];
+const SMTP_MIN_REMAINING_MS = 15_000;
+
+// Replaceable in tests (no mail server, no Cloudflare, no waiting).
+export const deps = {
+  createTransport: (options) => nodemailer.createTransport(options),
+  fetch: (...args) => fetch(...args),
+  sleep: (ms) => new Promise((resolve) => setTimeout(resolve, ms)),
+};
+
+/** A setting by the Lambda's name: on the platform its CINTECA_CONTACT_ name only, elsewhere either. */
+export function setting(name, environment = process.env) {
+  const platformName = PLATFORM_NAMES[name];
+  const prefixed = platformName ? environment[platformName] : undefined;
+  if (typeof prefixed === "string" && prefixed.trim()) return prefixed.trim();
+  if (platformName && environment.MAINSERVER_FUNCTION_ID) return "";
+  const value = environment[name];
+  return typeof value === "string" ? value.trim() : "";
+}
+
+function smtpPassword(environment = process.env) {
+  return environment.SMTP_PASS || environment.SMTP_PASSWORD || "";
+}
 
 function splitEnvironmentList(value = "") {
   return value
@@ -130,7 +190,7 @@ export function validatePayload(payload) {
   return { ok: true, honeypot: false, data };
 }
 
-export function isAllowedOrigin(origin, configuredOrigins = process.env.ALLOWED_ORIGINS) {
+export function isAllowedOrigin(origin, configuredOrigins = setting("ALLOWED_ORIGINS")) {
   if (!origin) return false;
   return splitEnvironmentList(configuredOrigins).includes(origin);
 }
@@ -158,16 +218,24 @@ export function siteForOrigin(origin) {
   return null;
 }
 
+/** The site's sender, else "<label> contact form <SMTP_USER>" (the platform's no-reply user). */
+function senderFor(config, environment) {
+  const configured = setting(config.senderEnvironment, environment);
+  if (configured) return configured;
+  const smtpUser = (environment.SMTP_USER ?? "").trim();
+  return smtpUser.includes("@") ? `${config.label} contact form <${smtpUser}>` : "";
+}
+
 export function resolveContactRoute(site, environment = process.env) {
   const config = SITE_CONFIG[site];
   if (!config) throw new Error("Unsupported contact site");
 
-  const to = environment.CONTACT_TO_EMAIL?.trim();
+  const to = setting("CONTACT_TO_EMAIL", environment);
   if (!to) {
     throw new Error("Missing required environment variable: CONTACT_TO_EMAIL");
   }
 
-  const from = environment[config.senderEnvironment]?.trim();
+  const from = senderFor(config, environment);
   if (!from) {
     throw new Error(`Missing required environment variable: ${config.senderEnvironment}`);
   }
@@ -175,19 +243,14 @@ export function resolveContactRoute(site, environment = process.env) {
   return { to, from, label: config.label };
 }
 
-function requiredEnvironment(site) {
-  const senderEnvironment = SITE_CONFIG[site]?.senderEnvironment;
-  const required = [
-    "SMTP_HOST",
-    "SMTP_PORT",
-    "SMTP_USER",
-    "SMTP_PASS",
-    "CONTACT_TO_EMAIL",
-    "TURNSTILE_SECRET_KEY",
-    "ALLOWED_ORIGINS",
-    senderEnvironment,
-  ].filter(Boolean);
-  const missing = required.filter((name) => !process.env[name]?.trim());
+function requiredEnvironment(site, environment = process.env) {
+  const missing = ["SMTP_HOST", "SMTP_PORT", "SMTP_USER"].filter((name) => !environment[name]?.trim());
+  if (!smtpPassword(environment)) missing.push("SMTP_PASSWORD");
+  for (const name of ["CONTACT_TO_EMAIL", "TURNSTILE_SECRET_KEY", "ALLOWED_ORIGINS"]) {
+    if (!setting(name, environment)) missing.push(PLATFORM_NAMES[name]);
+  }
+  const config = SITE_CONFIG[site];
+  if (config && !senderFor(config, environment)) missing.push(PLATFORM_NAMES[config.senderEnvironment]);
 
   if (missing.length > 0) {
     throw new Error(`Missing required environment variables: ${missing.join(", ")}`);
@@ -195,11 +258,11 @@ function requiredEnvironment(site) {
 }
 
 async function validateTurnstile(token, remoteIp) {
-  const verificationResponse = await fetch(SITEVERIFY_URL, {
+  const verificationResponse = await deps.fetch(SITEVERIFY_URL, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      secret: process.env.TURNSTILE_SECRET_KEY,
+      secret: setting("TURNSTILE_SECRET_KEY"),
       response: token,
       remoteip: remoteIp || undefined,
       idempotency_key: crypto.randomUUID(),
@@ -212,12 +275,10 @@ async function validateTurnstile(token, remoteIp) {
   const result = await verificationResponse.json();
   if (!result.success) return false;
 
-  const expectedAction = process.env.TURNSTILE_EXPECTED_ACTION || "contact";
+  const expectedAction = setting("TURNSTILE_EXPECTED_ACTION") || "contact";
   if (expectedAction && result.action !== expectedAction) return false;
 
-  const expectedHostnames = splitEnvironmentList(
-    process.env.TURNSTILE_EXPECTED_HOSTNAMES,
-  );
+  const expectedHostnames = splitEnvironmentList(setting("TURNSTILE_EXPECTED_HOSTNAMES"));
   if (expectedHostnames.length > 0 && !expectedHostnames.includes(result.hostname)) {
     return false;
   }
@@ -225,40 +286,63 @@ async function validateTurnstile(token, remoteIp) {
   return true;
 }
 
-function getTransporter() {
-  if (transporter) return transporter;
-
-  const port = Number.parseInt(process.env.SMTP_PORT, 10);
+export function transportOptions(environment = process.env) {
+  const port = Number.parseInt(environment.SMTP_PORT, 10);
   if (!Number.isInteger(port) || port < 1 || port > 65_535) {
     throw new Error("SMTP_PORT must be a valid TCP port");
   }
+  const secure = environment.SMTP_SECURE ? environment.SMTP_SECURE === "true" : port === 465;
 
-  transporter = nodemailer.createTransport({
-    host: process.env.SMTP_HOST,
+  return {
+    host: environment.SMTP_HOST,
     port,
-    secure: process.env.SMTP_SECURE === "true",
-    requireTLS: process.env.SMTP_REQUIRE_TLS !== "false",
+    secure,
+    requireTLS: environment.SMTP_REQUIRE_TLS !== "false",
     auth: {
-      user: process.env.SMTP_USER,
-      pass: process.env.SMTP_PASS,
+      user: environment.SMTP_USER,
+      pass: smtpPassword(environment),
     },
+    tls: { minVersion: "TLSv1.2" },
     connectionTimeout: 8_000,
     greetingTimeout: 8_000,
     socketTimeout: 12_000,
-  });
-
-  return transporter;
+  };
 }
 
-async function sendContactEmail(data, requestId) {
-  const route = resolveContactRoute(data.site);
+/** A failure a new try can fix: no connection or no answer, or a 4xx (rate limit, greylisting, restart). */
+export function isTemporarySmtpError(error) {
+  const code = Number(error?.responseCode);
+  if (Number.isInteger(code) && code > 0) return code >= 400 && code < 500;
+  return ["ECONNECTION", "ETIMEDOUT", "ESOCKET", "EDNS", "ECONNREFUSED", "ECONNRESET", "EPIPE", "EAI_AGAIN"].includes(
+    error?.code,
+  );
+}
+
+async function sendWithRetry(message, context) {
+  for (let attempt = 0; ; attempt += 1) {
+    try {
+      return await deps.createTransport(transportOptions()).sendMail(message);
+    } catch (error) {
+      const pause = SMTP_RETRY_PAUSES_MS[attempt];
+      const remaining =
+        typeof context?.getRemainingTimeInMillis === "function" ? context.getRemainingTimeInMillis() : Infinity;
+      if (pause === undefined || !isTemporarySmtpError(error) || remaining - pause < SMTP_MIN_REMAINING_MS) {
+        throw error;
+      }
+      console.warn("Contact delivery retry", { attempt: attempt + 1, code: error?.responseCode ?? error?.code });
+      await deps.sleep(pause);
+    }
+  }
+}
+
+export function buildContactEmail(data, requestId, route) {
   const safeName = escapeHtml(data.name);
   const safeEmail = escapeHtml(data.email);
   const safeCompany = escapeHtml(data.company || "—");
   const safeSubject = escapeHtml(data.subject);
   const safeMessage = escapeHtml(data.message).replaceAll("\n", "<br>");
 
-  await getTransporter().sendMail({
+  return {
     from: route.from,
     to: route.to,
     replyTo: { name: data.name, address: data.email },
@@ -285,7 +369,12 @@ async function sendContactEmail(data, requestId) {
       <hr>
       <p>${safeMessage}</p>
     `,
-  });
+  };
+}
+
+async function sendContactEmail(data, requestId, context) {
+  const route = resolveContactRoute(data.site);
+  await sendWithRetry(buildContactEmail(data, requestId, route), context);
 }
 
 export async function handler(event, context) {
@@ -352,8 +441,8 @@ export async function handler(event, context) {
       return response(400, { ok: false, message: "Human verification failed." }, origin);
     }
 
-    const requestId = context?.awsRequestId ?? crypto.randomUUID();
-    await sendContactEmail(validation.data, requestId);
+    const requestId = context?.awsRequestId || crypto.randomUUID();
+    await sendContactEmail(validation.data, requestId, context);
     return response(202, { ok: true, requestId }, origin);
   } catch (error) {
     console.error("Contact delivery failed", {
