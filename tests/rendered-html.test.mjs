@@ -77,7 +77,7 @@ test("includes legal, privacy and machine-readable company information", async (
 
   assert.match(html, /Legal notice/);
   assert.match(html, /Privacy policy/);
-  assert.match(html, /uses AWS infrastructure, SMTP delivery and Cloudflare Turnstile/i);
+  assert.match(html, /uses Cinteca(?:'|&#x27;|&#39;)s own server platform \(servers in the European Union and the United States\), SMTP delivery and Cloudflare Turnstile/i);
   assert.match(html, /<form/i);
   assert.match(html, /name="message"/i);
   assert.match(html, /Protected contact form available on this website/i);
