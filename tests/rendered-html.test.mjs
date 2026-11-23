@@ -79,6 +79,7 @@ test("includes legal, privacy and machine-readable company information", async (
   assert.match(html, /Privacy policy/);
   assert.match(html, /uses Cinteca(?:'|&#x27;|&#39;)s own server platform \(servers in the Netherlands, Italy and the United States\), the platform(?:'|&#x27;|&#39;)s own email delivery and Cloudflare Turnstile/i);
   assert.match(html, /Amazon Web Services hosts this website \(Amazon S3 and CloudFront\) but does not receive the form data/);
+  assert.match(html, /Because any of the servers may handle a submission and the servers replicate one another, the data may be processed or stored on the server in Chicago/);
   assert.match(html, /EU-U\.S\. Data Privacy Framework for certified providers \(Article 45 GDPR\) or the standard contractual clauses approved by the European Commission \(Article 46 GDPR\)/);
   assert.doesNotMatch(html, /AWS infrastructure|SMTP delivery|AWS, the configured email provider/);
   assert.match(html, /<form/i);
