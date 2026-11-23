@@ -77,7 +77,10 @@ test("includes legal, privacy and machine-readable company information", async (
 
   assert.match(html, /Legal notice/);
   assert.match(html, /Privacy policy/);
-  assert.match(html, /uses Cinteca(?:'|&#x27;|&#39;)s own server platform \(servers in the European Union and the United States\), SMTP delivery and Cloudflare Turnstile/i);
+  assert.match(html, /uses Cinteca(?:'|&#x27;|&#39;)s own server platform \(servers in the Netherlands, Italy and the United States\), the platform(?:'|&#x27;|&#39;)s own email delivery and Cloudflare Turnstile/i);
+  assert.match(html, /Amazon Web Services hosts this website \(Amazon S3 and CloudFront\) but does not receive the form data/);
+  assert.match(html, /EU-U\.S\. Data Privacy Framework for certified providers \(Article 45 GDPR\) or the standard contractual clauses approved by the European Commission \(Article 46 GDPR\)/);
+  assert.doesNotMatch(html, /AWS infrastructure|SMTP delivery|AWS, the configured email provider/);
   assert.match(html, /<form/i);
   assert.match(html, /name="message"/i);
   assert.match(html, /Protected contact form available on this website/i);

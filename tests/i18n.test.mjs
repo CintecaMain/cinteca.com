@@ -47,6 +47,23 @@ test("every locale describes the protected contact channel", () => {
   }
 });
 
+test("every locale names the form's platform, its US server and the transfer safeguards", () => {
+  for (const locale of ["pt", "en", "es", "nb"]) {
+    const privacy = translations[locale].privacy;
+    const recipients = privacy.items[4].body;
+
+    assert.equal(privacy.items.length, 6, `${locale} privacy clauses`);
+    assert.doesNotMatch(privacy.intro, /AWS|SMTP/, `${locale} intro without AWS or SMTP`);
+    assert.match(recipients, /Amsterdam|Ámsterdam|Amsterdã/, `${locale} Amsterdam`);
+    assert.match(recipients, /Milan|Milán|Milão|Milano/, `${locale} Milan`);
+    assert.match(recipients, /Chicago/, `${locale} Chicago`);
+    assert.match(recipients, /Amazon S3/, `${locale} site hosting`);
+    assert.match(recipients, /45/, `${locale} Article 45`);
+    assert.match(recipients, /46/, `${locale} Article 46`);
+    assert.match(recipients, /Turnstile/, `${locale} Turnstile`);
+  }
+});
+
 test("every locale lists the four OEPM patent applications of the company", () => {
   for (const locale of ["pt", "en", "es", "nb"]) {
     const patents = translations[locale].patents;
