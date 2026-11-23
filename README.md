@@ -46,3 +46,7 @@ npm run build:s3   # gera out/ (exportação estática)
 O conteúdo de `out/` é publicado como site estático (S3 + CloudFront) no domínio `cinteca.es`.
 
 O endereço da função de contato está em `app/page.tsx` (`defaultContactEndpoint`); `NEXT_PUBLIC_CONTACT_ENDPOINT` substitui-o numa build. A função, as suas variáveis e testes: [`functions/contact-form/README.md`](functions/contact-form/README.md).
+
+Uma build nova publicada precisa de `NEXT_PUBLIC_TURNSTILE_SITE_KEY` (sem ela o formulário mostra só o aviso de verificação indisponível) e deve ser feita em Linux ou macOS: uma build em Windows grava alguns ficheiros RSC (`__next.*.txt`) noutros caminhos que a build publicada. Cada build tem um build id novo e o `next/font` descarrega as fontes do dia, por isso não se compara byte a byte com o que está no bucket.
+
+Trocar só o endereço da função num site já publicado, sem build: `scripts/switch-contact-endpoint.mjs` (cópia do bucket → o chunk com o endereço ganha um nome novo, as páginas que o nomeiam são reescritas só nesse nome; ver o cabeçalho do script). Serve também para adrianocaldas.com. O proxy do formulário na plataforma: [`deploy/contact-proxy/README.md`](deploy/contact-proxy/README.md).
