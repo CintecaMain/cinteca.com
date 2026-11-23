@@ -30,7 +30,9 @@ origin, keeps one destination mailbox and chooses the sender itself. Sender and 
 | settings missing, Cloudflare or SMTP failing | 503 `Contact service temporarily unavailable.` |
 | sent | 202 `{ ok: true, requestId }` (the platform's invocation id) |
 
-The function answers CORS itself: nothing in front of it may add CORS headers (the platform adds none).
+The function answers CORS itself: nothing in front of it may add CORS headers (the platform adds none, nor does the
+proxy). Turnstile's optional `remoteip` is the caller's address when it is public (external access on), or the
+`X-Real-IP` the proxy sets when the caller is a private address (the proxy container); otherwise it is left out.
 
 ## On the platform
 
@@ -40,7 +42,7 @@ The function answers CORS itself: nothing in front of it may add CORS headers (t
 | Runtime / entry point | Node.js 24 / `index.handler` |
 | Time limit | 60 s (as on AWS) |
 | Memory / CPU | 0.25 GiB / 0.5 |
-| External access | **on**: the sites call `https://<function id>.<General's primary domain>/` from the visitor's browser, as they called the Lambda URL. Every server serves that name with its own runner (no single server) |
+| External access | **off** with the proxy container [`deploy/contact-proxy`](../../deploy/contact-proxy/README.md) in front (recommended, owner question Q-F8): the sites call `https://cinteca-contact.<General's primary domain>/`, and the proxy limits what reaches the platform's function runners (one limit of 32 calls at once per server, shared by every environment's functions). Without the proxy: **on**, and the sites call `https://<function id>.<General's primary domain>/` as they called the Lambda URL, with no limit in front (a flood can then block every function on all three servers). Either way every server serves the name with its own container and runner (no single server) |
 | Code | `node functions/pack.mjs contact-form` -> `functions/dist/contact-form.zip` (Functions › the function › Code; the platform runs `npm ci` from the lock) |
 
 Variables (General's are shared by all its containers and functions, hence the prefix; on the platform only these
@@ -65,7 +67,7 @@ code) but is not in the platform's allowed origins or Turnstile hostnames.
 ```sh
 cd functions/contact-form
 npm ci
-npm test                                 # 17 cases: the Lambda's 8 and the platform's 9; no network
+npm test                                 # 18 cases: the Lambda's 8 and the platform's 10; no network
 cd ../.. && node functions/pack.mjs contact-form
 ```
 

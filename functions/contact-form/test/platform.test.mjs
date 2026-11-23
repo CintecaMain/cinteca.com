@@ -248,6 +248,33 @@ test("SMTP: a temporary failure is tried again on a new connection; permanent or
   assert.equal(late.sent.length, 1);
 });
 
+test("Turnstile's remoteip: sourceIp of a public call; behind the proxy, X-Real-IP only from a private caller", async () => {
+  const at = (sourceIp, headers = {}) => {
+    const event = call("POST", PAYLOAD, { headers });
+    event.requestContext.http.sourceIp = sourceIp;
+    return event;
+  };
+  const cases = [
+    // External access on: the visitor is the caller; a header the visitor sends changes nothing.
+    [at("203.0.113.7", { "x-real-ip": "198.51.100.4" }), "203.0.113.7"],
+    // External access off, deploy/contact-proxy in front: the proxy container calls <id>.internal.
+    [at("172.18.0.5", { "X-Real-IP": "198.51.100.4" }), "198.51.100.4"],
+    [at("::ffff:10.88.0.2", { "x-real-ip": "2a00:1450:4001::1" }), "2a00:1450:4001::1"],
+    // Nothing usable: no remoteip (optional for Cloudflare), the form still works.
+    [at("172.18.0.5"), undefined],
+    [at("172.18.0.5", { "x-real-ip": "10.0.0.9" }), undefined],
+    [at("172.18.0.5", { "x-real-ip": "not-an-address" }), undefined],
+    [at("", { "x-real-ip": "198.51.100.4" }), undefined],
+  ];
+  for (const [event, expected] of cases) {
+    const { mod, verifications, sent } = await load(PLATFORM_ENV);
+    const res = await mod.handler(event, context());
+    assert.equal(res.statusCode, 202);
+    assert.equal(verifications[0].body.remoteip, expected, JSON.stringify(event.requestContext.http));
+    assert.equal(sent.length, 1);
+  }
+});
+
 test("missing settings: 503 before Cloudflare or SMTP is called", async () => {
   for (const drop of ["SMTP_PASSWORD", "SMTP_HOST", "CINTECA_CONTACT_TURNSTILE_SECRET_KEY"]) {
     const env = { ...PLATFORM_ENV };

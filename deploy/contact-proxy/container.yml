@@ -1,0 +1,6 @@
+# The container configuration file the self-hosted platform's CI/CD reads (MainServer, Containers > Running > Deploy,
+# config path deploy/contact-proxy/container.yml) for the contact forms' proxy in General (README.md in this folder).
+# No command and no migrations.
+build:
+  context: deploy/contact-proxy
+  dockerfile: Dockerfile

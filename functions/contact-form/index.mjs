@@ -2,9 +2,11 @@
  * The protected contact forms of cinteca.es and adrianocaldas.com, as a function of the self-hosted platform
  * (MainServer, environment General). It replaces the AWS Lambda contact-form-endpoint (cinteca-prod, eu-central-1),
  * whose code it keeps: the same request contract, origin and site checks, honeypot, mandatory Turnstile (token,
- * action and hostname), body limit, answers and status codes. The sites call its public URL
- * https://<function id>.<General's primary domain>/ (external access on), as they called the Lambda's function URL:
- * every server serves that name with its own runner, so any one server down leaves the form working.
+ * action and hostname), body limit, answers and status codes. The sites call it from the visitor's browser, as they
+ * called the Lambda's function URL, either through the proxy container deploy/contact-proxy in General (external access
+ * off; the recommended choice, owner question Q-F8: it limits what reaches the platform's function runners) or at its
+ * own public URL https://<function id>.<General's primary domain>/ (external access on). Either way every server
+ * serves the name with its own container and runner, so any one server down leaves the form working.
  *
  * Changed for the platform (owner decision D14, 2026-11-22: "Função da plataforma"):
  *   - the message goes through the platform's mail server as General's no-reply user (SMTP_PASSWORD, injected by the
@@ -22,9 +24,11 @@
  *       CINTECA_CONTACT_TURNSTILE_EXPECTED_HOSTNAMES   <- TURNSTILE_EXPECTED_HOSTNAMES
  *     SMTP_HOST, SMTP_PORT, SMTP_SECURE, SMTP_REQUIRE_TLS, SMTP_USER and SMTP_PASS (or the platform's SMTP_PASSWORD)
  *     keep their names: they are the environment's mail settings, shared on purpose.
- *   - nodemailer 10.5.0 (9.0.3 on AWS: npm audit reports advisories up to 10.1.3).
+ *   - nodemailer 10.5.0 (9.0.3 on AWS: npm audit reports advisories up to 10.1.3);
+ *   - Turnstile's remoteip is the visitor's address: sourceIp when it is public, else (behind the proxy) X-Real-IP.
  */
 import crypto from "node:crypto";
+import net from "node:net";
 import nodemailer from "nodemailer";
 
 const SITEVERIFY_URL = "https://challenges.cloudflare.com/turnstile/v0/siteverify";
@@ -93,6 +97,35 @@ function getHeader(event, name) {
     ([headerName]) => headerName.toLowerCase() === expected,
   );
   return entry?.[1] ?? "";
+}
+
+// Addresses that are never a visitor's: the platform's own networks (containers, mesh), loopback and link-local.
+const PRIVATE_ADDRESSES = new net.BlockList();
+for (const [prefix, bits] of [["10.0.0.0", 8], ["172.16.0.0", 12], ["192.168.0.0", 16], ["127.0.0.0", 8],
+  ["169.254.0.0", 16], ["100.64.0.0", 10], ["0.0.0.0", 8]]) PRIVATE_ADDRESSES.addSubnet(prefix, bits, "ipv4");
+for (const [prefix, bits] of [["::", 127], ["fc00::", 7], ["fe80::", 10]]) PRIVATE_ADDRESSES.addSubnet(prefix, bits, "ipv6");
+
+/** An IP address as { address, private }, or null; an IPv4-mapped IPv6 address counts as its IPv4 address. */
+function parseAddress(value) {
+  const address = String(value ?? "").trim().replace(/^::ffff:(?=\d+\.\d+\.\d+\.\d+$)/i, "");
+  const family = net.isIP(address);
+  if (family === 0) return null;
+  return { address, private: PRIVATE_ADDRESSES.check(address, family === 4 ? "ipv4" : "ipv6") };
+}
+
+/**
+ * The visitor's address, for Turnstile's optional remoteip. A public call (external access on, as the Lambda URL) has
+ * it as sourceIp. Behind the platform proxy (deploy/contact-proxy: external access off, the call comes from the proxy
+ * container through <id>.internal) sourceIp is the proxy's private address and the proxy sends the visitor's in
+ * X-Real-IP, overwriting any value the visitor sent. X-Real-IP is read only when sourceIp is private (only a container
+ * of the environment can then be the caller). No public address found: no remoteip (Cloudflare does not require it).
+ */
+export function visitorAddress(event) {
+  const source = parseAddress(event?.requestContext?.http?.sourceIp);
+  if (!source) return "";
+  if (!source.private) return source.address;
+  const forwarded = parseAddress(getHeader(event, "x-real-ip"));
+  return forwarded && !forwarded.private ? forwarded.address : "";
 }
 
 function requestMethod(event) {
@@ -431,7 +464,7 @@ export async function handler(event, context) {
 
   try {
     requiredEnvironment(validation.data.site);
-    const remoteIp = event?.requestContext?.http?.sourceIp ?? "";
+    const remoteIp = visitorAddress(event);
     const turnstileValid = await validateTurnstile(
       validation.data.turnstileToken,
       remoteIp,
