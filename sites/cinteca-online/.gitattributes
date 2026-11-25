@@ -1,0 +1,2 @@
+# The image's files keep LF line endings on every checkout (nginx configuration, HTML, CSS).
+* text=auto eol=lf

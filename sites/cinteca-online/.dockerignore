@@ -1,0 +1,5 @@
+# Only the Dockerfile's inputs go into the build context.
+*
+!deploy/nginx.conf
+!deploy/security-headers.conf
+!public/
