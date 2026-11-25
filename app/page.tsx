@@ -15,8 +15,13 @@ import {
   type Locale,
 } from "./i18n";
 
+// The contact function, shared with adrianocaldas.com: the MainServer platform function CintecaContact (environment
+// General), public, since the AWS Lambda contact-form-endpoint was removed on 2026-11-24. NEXT_PUBLIC_CONTACT_ENDPOINT
+// overrides it in a build; without the variable a build always calls the platform function.
+const defaultContactEndpoint =
+  "https://fn-z9apn7.general.cinteca.space/";
 const contactEndpoint =
-  "https://u33x6xbn7dq2l5jn66hvv7ovc40bgiye.lambda-url.eu-central-1.on.aws/";
+  process.env.NEXT_PUBLIC_CONTACT_ENDPOINT || defaultContactEndpoint;
 const configuredTurnstileSiteKey =
   process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ?? "";
 const legalContactEmail = process.env.NEXT_PUBLIC_LEGAL_CONTACT_EMAIL ?? "";

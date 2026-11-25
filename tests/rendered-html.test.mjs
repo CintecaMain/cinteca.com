@@ -100,3 +100,19 @@ test("identifies Cinteca to the shared contact Lambda", async () => {
   assert.match(source, /site: "cinteca"/);
   assert.doesNotMatch(source, /web-cinteca@cinteca\.es/);
 });
+
+test("posts the form to the contact function over HTTPS (the Lambda or the platform function)", async () => {
+  const source = await readFile(
+    new URL("../app/page.tsx", import.meta.url),
+    "utf8",
+  );
+  const declared = source.match(/const defaultContactEndpoint =\s*"([^"]+)"/);
+
+  assert.ok(declared, "app/page.tsx declares the contact function's address");
+  assert.match(
+    declared[1],
+    /^https:\/\/([a-z0-9]+\.lambda-url\.eu-central-1\.on\.aws|fn-[a-z0-9]+\.[a-z0-9.-]+)\/$/,
+  );
+  assert.match(source, /process\.env\.NEXT_PUBLIC_CONTACT_ENDPOINT \|\| defaultContactEndpoint/);
+  assert.match(source, /fetch\(contactEndpoint,/);
+});
